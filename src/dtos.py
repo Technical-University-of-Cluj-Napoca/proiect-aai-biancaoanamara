@@ -45,3 +45,13 @@ class CodeFileDTO(BaseModel):
     functions: List[FunctionDTO]
     imports: List[str]
     dependencies: List[str]
+
+
+# DTO for representing the entire parsed repository
+class RepositoryDTO(BaseModel):
+    url: str
+    name: str
+    local_path: str
+    files: List[CodeFileDTO]
+    total_loc: int
+    languages: List[Language]
