@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # The main AI agent application
+  code-review-agent:
+    build: .
+    ports:
+      # Map the container port to your local machine
+      - "8501:8501"
+    env_file:
+      # Load the secret OpenAI API key
+      - .env
+    volumes:
+      # Mount persistent memory volumes as required by the docs
+      - ./vectorstore:/app/vectorstore
+      - ./memory:/app/memory
