@@ -1,0 +1,10 @@
+# Ignore the environment variables file to keep API keys secret
+.env
+
+# Ignore Python cache and virtual environment folders
+__pycache__/
+.venv/
+
+# Ignore local cloned repositories and vector database
+data/repos/
+vectorstore/
