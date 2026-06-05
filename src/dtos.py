@@ -1,57 +1,76 @@
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict
 from enum import Enum
-from pydantic import BaseModel
-from typing import List, Optional
 
-# Define the severity levels for vulnerabilities
-class VulnerabilitySeverity(str, Enum):
-    CRITICAL = "CRITIC"
-    HIGH = "RIDICAT"
-    MEDIUM = "MEDIU"
-    LOW = "SCAZUT"
-    INFO = "INFO"
+class SeverityLevel(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
 
-# Define the types of issues the agents can find
-class IssueType(str, Enum):
-    SECURITY_VULN = "SECURITY_VULN"
-    CODE_SMELL = "CODE_SMELL"
-    STYLE_VIOLATION = "STYLE_VIOLATION"
-    DEPENDENCY_RISK = "DEPENDENCY_RISK"
-    LOGIC_ERROR = "LOGIC_ERROR"
-    HARDCODED_SECRET = "HARDCODED_SECRET"
+class FeedbackStatus(str, Enum):
+    TRUE_POSITIVE = "TRUE_POSITIVE"
+    FALSE_POSITIVE = "FALSE_POSITIVE"
 
-# Define the programming languages supported by the system
-class Language(str, Enum):
-    PYTHON = "PYTHON"
-    JAVASCRIPT = "JAVASCRIPT"
-    TYPESCRIPT = "TYPESCRIPT"
-    JAVA = "JAVA"
-    GO = "GO"
-    OTHER = "OTHER"
-
-# DTO for representing a specific function parsed from the code
 class FunctionDTO(BaseModel):
     name: str
     start_line: int
     end_line: int
-    params: List[str]
-    cyclomatic_complexity: Optional[float] = None
+    code_snippet: str
+    cyclomatic_complexity: Optional[int] = None
 
-# DTO for representing a complete code file
 class CodeFileDTO(BaseModel):
     file_path: str
-    language: Language
     content: str
-    lines_of_code: int
-    functions: List[FunctionDTO]
-    imports: List[str]
-    dependencies: List[str]
+    functions: List[FunctionDTO] = Field(default_factory=list)
+    language: str = "python"
 
-
-# DTO for representing the entire parsed repository
 class RepositoryDTO(BaseModel):
-    url: str
-    name: str
-    local_path: str
-    files: List[CodeFileDTO]
-    total_loc: int
-    languages: List[Language]
+    repo_url: str
+    files: List[CodeFileDTO] = Field(default_factory=list)
+    dependencies: List[str] = Field(default_factory=list)
+
+class VulnerabilityDTO(BaseModel):
+    vulnerability_id: str = Field(description="Internal or CVE/CWE ID")
+    description: str
+    severity: SeverityLevel
+    file_path: str
+    line_number: Optional[int] = None
+    code_snippet: Optional[str] = None
+    remediation: str
+    false_positive: bool = False
+
+class CodeSmellDTO(BaseModel):
+    smell_type: str
+    description: str
+    file_path: str
+    line_number: Optional[int] = None
+    severity: SeverityLevel = SeverityLevel.LOW
+
+class DependencyRiskDTO(BaseModel):
+    dependency_name: str
+    current_version: str
+    vulnerability_details: str
+    severity: SeverityLevel
+
+class RetrievalResultDTO(BaseModel):
+    source_document: str
+    content: str
+    relevance_score: float
+
+class FileReviewDTO(BaseModel):
+    file_path: str
+    vulnerabilities: List[VulnerabilityDTO] = Field(default_factory=list)
+    code_smells: List[CodeSmellDTO] = Field(default_factory=list)
+
+class FeedbackDTO(BaseModel):
+    vulnerability_id: str
+    file_path: str
+    status: FeedbackStatus
+    user_comments: Optional[str] = None
+
+class ReviewReportDTO(BaseModel):
+    repository_url: str
+    file_reviews: List[FileReviewDTO] = Field(default_factory=list)
+    dependency_risks: List[DependencyRiskDTO] = Field(default_factory=list)
+    summary: str

@@ -1,37 +1,42 @@
+import ast
 import sys
 import os
 
-# Add the root project directory to the system path so we can import 'src'
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.dtos import CodeFileDTO, FunctionDTO
 
-from src.agents.parser_agent import CodeParserAgent
+def parse_python_file(file_path: str) -> CodeFileDTO:
+    """A basic parser that will later be moved to the parser agent."""
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
 
-def main():
-    # Initialize the parser agent
-    parser = CodeParserAgent()
+    tree = ast.parse(content)
+    functions = []
     
-    # A public repository URL (Uniform Resource Locator) for testing
-    test_repo_url = "https://github.com/pallets/click.git" 
-    
-    print("Starting the parsing process. This might take a few seconds...")
-    
-    # Parse the repository and get the RepositoryDTO (Data Transfer Object)
-    repository_data = parser.parse(test_repo_url)
-    
-    # Display the results as requested in the documentation
-    print("\n--- Parsing Results ---")
-    print(f"Total parsed files: {len(repository_data.files)}")
-    print(f"Detected languages: {[lang.value for lang in repository_data.languages]}")
-    
-    # Calculate total functions extracted (currently 0, but prepared for AST parsing)
-    total_functions = sum(len(file_dto.functions) for file_dto in repository_data.files)
-    print(f"Total extracted functions: {total_functions}")
-    
-    print("\n--- First 3 CodeFileDTOs ---")
-    for i, file_dto in enumerate(repository_data.files[:3]):
-        print(f"\nFile {i + 1}: {file_dto.file_path}")
-        print(f"Language: {file_dto.language.value}")
-        print(f"Lines of code: {file_dto.lines_of_code}")
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef):
+            start = node.lineno
+            end = node.end_lineno
+            code_snippet = "\n".join(content.split("\n")[start-1:end])
+            
+            functions.append(FunctionDTO(
+                name=node.name,
+                start_line=start,
+                end_line=end,
+                code_snippet=code_snippet,
+                cyclomatic_complexity=None # We'll compute this in the quality agent
+            ))
+            
+    return CodeFileDTO(
+        file_path=file_path,
+        content=content,
+        functions=functions,
+        language="python"
+    )
 
 if __name__ == "__main__":
-    main()
+    print("Testing parser on itself...")
+    file_dto = parse_python_file(__file__)
+    print(f"Parsed {file_dto.file_path}")
+    for func in file_dto.functions:
+        print(f" - Function: {func.name} (Lines: {func.start_line}-{func.end_line})")

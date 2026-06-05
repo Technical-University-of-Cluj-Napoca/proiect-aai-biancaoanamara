@@ -1,17 +1,16 @@
-# Use the exact Python version requested in the project requirements
 FROM python:3.11-slim
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Install 'uv' for fast package management
-RUN pip install uv
+# Install git for GitPython
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-# Copy all project files into the container
-COPY . /app
+COPY requirements.txt .
 
-# Expose the port for the Streamlit UI
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
 EXPOSE 8501
 
-# Command to run the Streamlit application
-CMD ["streamlit", "run", "src/app.py"]
+CMD ["streamlit", "run", "src/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
