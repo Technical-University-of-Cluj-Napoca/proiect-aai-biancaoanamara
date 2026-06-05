@@ -1,0 +1,15 @@
+fastapi>=0.100.0
+uvicorn>=0.23.0
+streamlit>=1.26.0
+langchain>=0.0.300
+langgraph>=0.0.10
+chromadb>=0.4.10
+pydantic>=2.3.0
+GitPython>=3.1.32
+radon>=6.0.1
+vulture>=2.8
+openai>=1.0.0
+tiktoken>=0.5.1
+python-dotenv>=1.0.0
+ragas>=0.0.16
+jupyter>=1.0.0

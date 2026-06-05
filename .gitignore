@@ -1,10 +1,33 @@
-# Ignore the environment variables file to keep API keys secret
+# Environments
 .env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# Ignore Python cache and virtual environment folders
+# Byte-compiled / optimized / DLL files
 __pycache__/
-.venv/
+*.py[cod]
+*$py.class
 
-# Ignore local cloned repositories and vector database
+# Data and Models
 data/repos/
 vectorstore/
+memory/
+
+# Streamlit
+.streamlit/
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs
+.idea/
+.vscode/
+*.swp
